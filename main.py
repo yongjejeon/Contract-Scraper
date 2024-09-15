@@ -57,6 +57,63 @@ for index, entry in enumerate(all_dates_info, start=1):
         print(f"Date: {entry['date']}\nURL:  {entry['url']}")
         selected_url = entry['url']
 
+def extract_company_and_amount(paragraph_text):
+    # Define a regex pattern for company names 
+    company_pattern = r'^(.+?)\s+(?:is awarded|was awarded|has been awarded|has been added|are awarded|are each awarded|is receiving|have each been awarded|is being awarded)'
+    # Define a regex pattern for the awarded amount (matches dollar amounts)
+    amount_pattern = r'\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?'
+    # Search for the company name
+    company_match = re.search(company_pattern, paragraph_text)
+    if company_match:
+        # Get the text up to the unwanted phrase
+        company_name = company_match.group(1).strip()     
+        # removes these phrases from company name
+        clean_company_name = re.sub(r'(is awarded|was awarded|has been awarded|has been added|are awarded|are each awarded|is receiving|have each been awarded|is being awarded)', '', company_name).strip()
+        # Remove any trailing commas from the cleaned company name
+        clean_company_name = clean_company_name.rstrip(',').strip()
+    else:
+        clean_company_name = "Company not found"
+    # Search for the awarded amount
+    amount_match = re.search(amount_pattern, paragraph_text)
+    awarded_amount = amount_match.group(0) if amount_match else "Amount not found"
+    
+    return clean_company_name, awarded_amount
+
+def extract_awarded_info_from_paragraphs(selected_url):
+    driver = webdriver.Chrome()
+    driver.get(selected_url)
+    # Get all paragraphs from the page
+    paragraphs = driver.find_elements(By.TAG_NAME, 'p')
+    # Filter paragraphs that contain the word "awarded", this is to find visible paragraphs
+    awarded_paragraphs = [p for p in paragraphs if "awarded" in p.text]
+    results = []
+    #get first word
+    for index, paragraph in enumerate(awarded_paragraphs, start=1):
+        first_word = paragraph.text.split()[0] if paragraph.text.strip() else "(Empty paragraph)"
+        print(f"Paragraph {index}: First word is '{first_word}'")   
+        # Extract company name and awarded amount
+        company, amount = extract_company_and_amount(paragraph.text)
+        print(f"Company: {company}")
+        print(f"Awarded Amount: {amount}")
+        print("-" * 50)   
+        # Append result to the list for further processing if needed
+        results.append({
+            'paragraph_index': index,
+            'first_word': first_word,
+            'company': company,
+            'amount': amount
+        })
+    
+    driver.quit()  # Close the browser after extracting information
+    
+    return results
+
+awarded_info = extract_awarded_info_from_paragraphs(selected_url)
+
+# Optionally, process the awarded_info further or display it
+print(f"Total paragraphs with 'awarded': {len(awarded_info)}")
+
+
 
  
 
@@ -67,6 +124,7 @@ def fetch_company_names_and_dollars(selected_url):
           driver = webdriver.Chrome()
           driver.get(selected_url)
           paragraphs = driver.find_elements(By.TAG_NAME, 'p')
+          
           paragraph_texts = [paragraph.text for paragraph in paragraphs]
           #define regex patterns to find company names
           name_patterns = [r'(.+?)\s+(Co\.|Inc\.|Corp\.)\b',r'(.+?),\s+(is awarded|are awarded)\b']
@@ -133,11 +191,5 @@ def print_final_output(paragraph_texts, companies, dollar_amounts):
 
 
         
-
-
-
-    
-        
-
 
 
