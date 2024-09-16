@@ -57,6 +57,7 @@ for index, entry in enumerate(all_dates_info, start=1):
         print(f"Date: {entry['date']}\nURL:  {entry['url']}")
         selected_url = entry['url']
 
+# go through every paragraph in the page (parsed from the URL) to match company name and award amount
 def extract_company_and_amount(paragraph_text):
     # Define a regex pattern for company names 
     company_pattern = r'^(.+?)\s+(?:is awarded|was awarded|has been awarded|has been added|are awarded|are each awarded|is receiving|have each been awarded|is being awarded)'
@@ -79,7 +80,9 @@ def extract_company_and_amount(paragraph_text):
     
     return clean_company_name, awarded_amount
 
+
 def extract_awarded_info_from_paragraphs(selected_url):
+    total_amount_list = []
     driver = webdriver.Chrome()
     driver.get(selected_url)
     # Get all paragraphs from the page
@@ -90,12 +93,15 @@ def extract_awarded_info_from_paragraphs(selected_url):
     #get first word
     for index, paragraph in enumerate(awarded_paragraphs, start=1):
         first_word = paragraph.text.split()[0] if paragraph.text.strip() else "(Empty paragraph)"
-        print(f"Paragraph {index}: First word is '{first_word}'")   
+        #print(f"Paragraph {index}: First word is '{first_word}'")
+        print(f"{index}.", end = " ")   
         # Extract company name and awarded amount
         company, amount = extract_company_and_amount(paragraph.text)
         print(f"Company: {company}")
         print(f"Awarded Amount: {amount}")
-        print("-" * 50)   
+        print("-" * 50)
+        # add each amount to the total amount
+        total_amount_list.append(int(amount.replace('$', '').replace(',', '')))
         # Append result to the list for further processing if needed
         results.append({
             'paragraph_index': index,
@@ -103,6 +109,9 @@ def extract_awarded_info_from_paragraphs(selected_url):
             'company': company,
             'amount': amount
         })
+    sum_amount = sum(total_amount_list)
+    formatted_sum = "{:,}".format(sum_amount)
+    print(f"The U.S Department of Defense spent ${formatted_sum} on this date!")
     
     driver.quit()  # Close the browser after extracting information
     
@@ -111,12 +120,11 @@ def extract_awarded_info_from_paragraphs(selected_url):
 awarded_info = extract_awarded_info_from_paragraphs(selected_url)
 
 # Optionally, process the awarded_info further or display it
-print(f"Total paragraphs with 'awarded': {len(awarded_info)}")
+#print(f"Number of private companies receiving contracts': {len(awarded_info)}")
 
 
 
- 
-
+"""
 #for each paragraph, fetch the company's name and the award amount using regex patterns 
 def fetch_company_names_and_dollars(selected_url):
          if selected_url:
@@ -147,8 +155,9 @@ def fetch_company_names_and_dollars(selected_url):
 
          driver.quit()     
          return companies, dollar_amounts, paragraph_texts 
+"""
 
-
+"""
 companies, dollar_amounts, paragraph_texts = fetch_company_names_and_dollars(selected_url)
 #later append all the integer amounts to this list, sum this up to fetch the total $ spent today
 int_dollar_amounts = []
@@ -161,6 +170,8 @@ for index, (company, dollar_amount) in enumerate(zip(companies, dollar_amounts),
 sum_amount = sum(int_dollar_amounts)
 formatted_sum = "{:,}".format(sum_amount)
 print(f"The U.S Department of Defense spent ${formatted_sum}")
+"""
+
 
 
 """
