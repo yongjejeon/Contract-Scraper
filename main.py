@@ -60,7 +60,7 @@ for index, entry in enumerate(all_dates_info, start=1):
 # go through every paragraph in the page (parsed from the URL) to match company name and award amount
 def extract_company_and_amount(paragraph_text):
     # Define a regex pattern for company names 
-    company_pattern = r'^(.+?)\s+(?:is awarded|was awarded|has been awarded|has been added|are awarded|are each awarded|is receiving|have each been awarded|is being awarded)'
+    company_pattern = r'^(.+?)\s+(?:is awarded|was awarded|has been awarded|has been added|are awarded|are each awarded|is receiving|have each been awarded|is being awarded|awarded)'
     # Define a regex pattern for the awarded amount (matches dollar amounts)
     amount_pattern = r'\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?'
     # Search for the company name
@@ -69,7 +69,7 @@ def extract_company_and_amount(paragraph_text):
         # Get the text up to the unwanted phrase
         company_name = company_match.group(1).strip()     
         # removes these phrases from company name
-        clean_company_name = re.sub(r'(is awarded|was awarded|has been awarded|has been added|are awarded|are each awarded|is receiving|have each been awarded|is being awarded)', '', company_name).strip()
+        clean_company_name = re.sub(r'(is awarded|was awarded|has been awarded|has been added|are awarded|are each awarded|is receiving|have each been awarded|is being awarded|awarded)', '', company_name).strip()
         # Remove any trailing commas from the cleaned company name
         clean_company_name = clean_company_name.rstrip(',').strip()
     else:
