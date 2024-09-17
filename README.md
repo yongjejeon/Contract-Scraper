@@ -1,5 +1,7 @@
-##Contracts Scraper 
+## Contracts Scraper 
+
 By: Lisa Cao and Yongje Jeon 
+
 How much does the U.S Department of Defense spend every day? Find out with our Contracts Scraper. This scraper returns a holistic list of all private companies and the amount that each is awarded by the U.S Department of Defense for the past 14 days. 
 
 ## Functions
